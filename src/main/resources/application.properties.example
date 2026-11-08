@@ -1,0 +1,26 @@
+spring.application.name=hardly
+
+# Connexion Oracle
+spring.datasource.url=jdbc:oracle:thin:@localhost:1521/XEPDB1
+spring.datasource.username=MON_USER
+spring.datasource.password=MON_MOT_DE_PASSE
+spring.datasource.driver-class-name=oracle.jdbc.OracleDriver
+
+# JPA / Hibernate
+spring.jpa.database-platform=org.hibernate.dialect.OracleDialect
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.show-sql=true
+
+logging.level.org.hibernate.orm.jdbc.bind=trace
+
+server.servlet.session.timeout=20m
+
+spring.servlet.multipart.max-file-size=2MB
+spring.servlet.multipart.max-request-size=2MB
+
+# HTTPS
+server.port=8444
+server.ssl.key-store=classpath:hardly.p12
+server.ssl.key-store-password=KEY_STORE_PASSWORD
+server.ssl.key-store-type=PKCS12
+server.ssl.key-alias=hardly
