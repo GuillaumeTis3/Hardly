@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Envoyer un message HL7</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        h2 { color: #333; }
+        .formulaire {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 700px;
+        }
+        .champ {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 13px;
+            font-family: monospace;
+            height: 200px;
+        }
+        .ligne {
+            display: flex;
+            gap: 20px;
+        }
+        .ligne .champ {
+            flex: 1;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background-color: #0052a3; }
+        .retour {
+            margin-top: 20px;
+        }
+        .retour a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .retour a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <!-- Header commun -->
+    <div th:replace="~{fragments :: header}"></div>
+
+    <h2>Envoyer un message HL7</h2>
+
+    <div class="formulaire">
+
+        <form th:action="@{/hl7/envoyer}" method="post">
+
+            <!-- Message HL7 — remplace messageAEnvoyer JTextArea -->
+            <div class="champ">
+                <label>Message HL7 :</label>
+                <textarea name="message"
+                          placeholder="MSH|^~\&|EMETTEUR|..."></textarea>
+            </div>
+
+            <div class="ligne">
+                <!-- Serveur destination -->
+                <div class="champ">
+                    <label>Serveur :</label>
+                    <input type="text" name="serveur" value="localhost" />
+                </div>
+
+                <!-- Port destination -->
+                <div class="champ">
+                    <label>Port :</label>
+                    <input type="number" name="port" value="4242" />
+                </div>
+            </div>
+
+            <!-- Bouton — remplace bouttonEnvoyer JButton -->
+            <button type="submit">Envoyer</button>
+
+        </form>
+
+        <div class="retour">
+            <a th:href="@{/}">← Retour au menu</a>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Fiche patient</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        h2 { color: #333; }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 600px;
+        }
+        .ipp {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            border-left: 4px solid #0066cc;
+            font-size: 16px;
+        }
+        .champ {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:read-only {
+            background-color: #f0f0f0;
+            color: #888;
+            cursor: not-allowed;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+            background: white;
+        }
+        .erreur {
+            color: red;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #fff0f0;
+            border-radius: 4px;
+            border: 1px solid #ffcccc;
+        }
+        .succes {
+            color: green;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f0fff0;
+            border-radius: 4px;
+            border: 1px solid #ccffcc;
+        }
+        .boutons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            align-items: center;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background-color: #0052a3; }
+        .btn-venues {
+            background-color: #0066cc;
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none !important;
+            display: inline-block;
+            font-size: 14px;
+        }
+        .btn-venues:hover { background-color: #0052a3; }
+        .btn-documents {
+            background-color: #cc0000;
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none !important;
+            display: inline-block;
+            font-size: 14px;
+        }
+        .btn-documents:hover { background-color: #aa0000; }
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .actions a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .actions a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <!-- Header commun -->
+    <div th:replace="~{fragments :: header}"></div>
+
+    <h2>Fiche patient</h2>
+
+    <div class="container">
+
+        <!-- Patient introuvable -->
+        <div class="erreur" th:if="${erreur}">
+            <p th:text="${erreur}"></p>
+        </div>
+
+        <!-- Succès modification -->
+        <div class="succes" th:if="${succes}">
+            <p th:text="${succes}"></p>
+        </div>
+
+        <!-- Fiche patient -->
+        <div th:if="${patient != null}">
+
+            <!-- IPP — non modifiable -->
+            <div class="ipp">
+                <strong>IPP : </strong>
+                <span th:text="${patient.ipp}"></span>
+            </div>
+
+            <!-- Formulaire modification -->
+            <form th:action="@{/patients/{ipp}/modifier(ipp=${patient.ipp})}" method="post">
+
+                <!-- Nom de naissance -->
+                <div class="champ">
+                    <label>Nom de naissance <span style="color:red">*</span></label>
+                    <input type="text"
+                           name="nomNaissance"
+                           th:value="${patient.nomNaissance}" />
+                </div>
+
+                <!-- Nom d'usage -->
+                <div class="champ">
+                    <label>Nom d'usage</label>
+                    <input type="text"
+                           name="nomUsage"
+                           th:value="${patient.nomUsage}" />
+                </div>
+
+                <!-- Prénom -->
+                <div class="champ">
+                    <label>Prénom <span style="color:red">*</span></label>
+                    <input type="text"
+                           name="prenom"
+                           th:value="${patient.prenom}" />
+                </div>
+
+                <!-- Sexe -->
+                <div class="champ">
+                    <label>Sexe</label>
+                    <select name="sexe">
+                        <option value="M" th:selected="${patient.sexe == 'M'}">Masculin</option>
+                        <option value="F" th:selected="${patient.sexe == 'F'}">Féminin</option>
+                        <option value="U" th:selected="${patient.sexe == 'U'}">Inconnu</option>
+                    </select>
+                </div>
+
+                <!-- Date de naissance -->
+                <div class="champ">
+                    <label>Date de naissance <span style="color:red">*</span></label>
+                    <input type="date"
+                           name="dateNaissance"
+                           th:value="${#temporals.format(patient.dateNaissance, 'yyyy-MM-dd')}" />
+                </div>
+
+                <div class="boutons">
+                    <button type="submit">💾 Modifier</button>
+                    <a class="btn-venues"
+                       th:href="@{/venues/{ipp}(ipp=${patient.ipp})}">
+                        🔍 Voir les venues
+                    </a>
+                    <a class="btn-documents"
+                       th:href="@{/documents/{ipp}(ipp=${patient.ipp})}">
+                        📄 Voir les documents
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="actions">
+            <a th:href="@{/patients}">← Retour à la liste des patients</a>
+            <span>|</span>
+            <a th:href="@{/}">← Retour au menu</a>
+        </div>
+
+    </div>
+
+</body>
+</html>

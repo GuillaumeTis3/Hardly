@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+    <!-- Fragment header — inclus dans toutes les pages -->
+    <div th:fragment="header"
+         style="background-color: #0066cc; color: white; padding: 10px 20px;
+                display: flex; justify-content: space-between; align-items: center;
+                margin-bottom: 30px; border-radius: 0 0 8px 8px;">
+
+        <!-- Titre à gauche -->
+        <a th:href="@{/}" style="color: white; text-decoration: none; font-size: 20px; font-weight: bold;">
+            Hardly
+        </a>
+
+        <!-- Utilisateur à droite -->
+        <div style="display: flex; align-items: center; gap: 15px; font-size: 14px;">
+            <span>
+                <strong sec:authentication="name"></strong>
+                -
+                <span sec:authentication="principal.role.libelle"></span>
+            </span>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit"
+                        style="color: white; background: rgba(255,255,255,0.2);
+                               border: none; padding: 5px 10px; border-radius: 4px;
+                               cursor: pointer; font-size: 14px;">
+                    Se déconnecter
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+</body>
+</html>

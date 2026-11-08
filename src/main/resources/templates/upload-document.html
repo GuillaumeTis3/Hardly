@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .content {
+            margin: 40px;
+        }
+        h2 { color: #333; }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 500px;
+        }
+        .champ {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+            background: white;
+        }
+        input[type="file"] {
+            background: white;
+        }
+        .note {
+            color: #888;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .erreur {
+            color: red;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #fff0f0;
+            border-radius: 4px;
+            border: 1px solid #ffcccc;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background-color: #0052a3; }
+        .retour {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .retour a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .retour a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <!-- Header commun -->
+    <div th:replace="~{fragments :: header}"></div>
+
+    <div class="content">
+
+        <h2>Uploader un document PDF</h2>
+
+        <div class="container">
+
+            <!-- Message d'erreur -->
+            <div class="erreur" th:if="${erreur}">
+                <p th:text="${erreur}"></p>
+            </div>
+
+            <form th:action="@{/documents/upload}" method="post"
+                  enctype="multipart/form-data">
+
+                <!-- IPP — obligatoire -->
+                <div class="champ">
+                    <label>IPP du patient <span style="color:red">*</span></label>
+                    <input type="text"
+                           name="ipp"
+                           placeholder="000000001"
+                           th:value="${ipp}" />
+                </div>
+
+                <!-- IEP — optionnel -->
+                <div class="champ">
+                    <label>Numéro de venue (IEP)</label>
+                    <input type="text"
+                           name="iep"
+                           placeholder="00001"
+                           th:value="${iep}" />
+                    <p class="note">Optionnel — laisser vide si non lié à une venue.</p>
+                </div>
+
+                <!-- Auteur — tous les utilisateurs actifs -->
+                <div class="champ">
+                    <label>Auteur <span style="color:red">*</span></label>
+                    <select name="auteurId">
+                        <option value="">-- Choisir un auteur --</option>
+                        <option th:each="u : ${utilisateurs}"
+                                th:if="${u.actif}"
+                                th:value="${u.id}"
+                                th:text="${u.nom + ' ' + u.prenom + ' (' + u.role.libelle + ')'}">
+                        </option>
+                    </select>
+                    <p class="note">Créateur du document — ne peut pas être modifié après.</p>
+                </div>
+
+                <!-- Responsable — médecins actifs uniquement -->
+                <div class="champ">
+                    <label>Médecin responsable <span style="color:red">*</span></label>
+                    <select name="responsableId">
+                        <option value="">-- Choisir un médecin --</option>
+                        <option th:each="medecin : ${medecins}"
+                                th:value="${medecin.id}"
+                                th:text="${medecin.nom + ' ' + medecin.prenom}">
+                        </option>
+                    </select>
+                    <p class="note">Doit être un médecin — modifiable après coup.</p>
+                </div>
+
+                <!-- Fichier PDF -->
+                <div class="champ">
+                    <label>Fichier PDF <span style="color:red">*</span></label>
+                    <input type="file"
+                           name="fichier"
+                           accept=".pdf" />
+                    <p class="note">Seuls les fichiers PDF sont acceptés. Taille max : 2 Mo.</p>
+                </div>
+
+                <button type="submit">📤 Uploader</button>
+
+            </form>
+
+            <div class="retour">
+                <a th:if="${ipp != null and ipp != ''}"
+                   th:href="@{/documents/{ipp}(ipp=${ipp})}">
+                    ← Retour aux documents du patient
+                </a>
+                <a th:if="${ipp == null or ipp == ''}"
+                   th:href="@{/patients}">
+                    ← Retour à la liste des patients
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

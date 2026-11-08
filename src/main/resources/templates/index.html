@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Hardly</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .menu {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .menu-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-width: 200px;
+        }
+        .menu-section h3 {
+            margin-top: 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .menu-section a {
+            display: block;
+            padding: 8px 0;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .menu-section a:hover {
+            text-decoration: underline;
+        }
+        .info {
+            margin-top: 30px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div th:replace="~{fragments :: header}"></div>
+
+    <h1>Hardly</h1>
+
+    <div class="menu">
+
+        <!-- Menu HL7 Receiver — remplace receiverMenuN1 -->
+        <div class="menu-section">
+            <h3>HL7 Receiver</h3>
+            <a th:href="@{/hl7/lancer}">Lancer l'écoute</a>
+            <a th:href="@{/hl7/arreter}">Arrêter l'écoute</a>
+        </div>
+
+        <!-- Menu HL7 Sender — remplace senderMenuN1 -->
+        <div class="menu-section">
+            <h3>HL7 Sender</h3>
+            <a th:href="@{/hl7/envoyer}">Nouveau message HL7</a>
+            <a th:href="@{/historique}">Historique des messages</a>
+        </div>
+
+        <!-- Menu Patient — remplace patientMenuN1 -->
+        <div class="menu-section">
+            <h3>Menu patient</h3>
+            <a th:href="@{/patients/creer}">Créer un patient</a>
+            <a th:href="@{/patients}">Afficher les patients</a>
+            <a th:href="@{/venues/creer}">Déclarer une venue</a>
+        </div>
+
+        <div class="menu-section">
+            <h3>Menu utilisateur</h3>
+            <a th:href="@{/utilisateurs}">Gestion des utilisateurs</a>
+        </div>
+
+        <!-- A propos — remplace aProposN1 -->
+        <div class="menu-section">
+            <h3>A propos</h3>
+            <a th:href="@{/apropos}">Qui suis-je ?</a>
+            <a th:href="@{/aide}">Aide</a>
+        </div>
+
+    </div>
+
+    <!-- Zone d'information — remplace quiSuisJeText -->
+    <div class="info" th:if="${message}">
+        <p style="white-space: pre-wrap" th:text="${message}"></p>
+    </div>
+
+</body>
+</html>

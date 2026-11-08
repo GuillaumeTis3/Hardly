@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Documents patient</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .content { margin: 40px; }
+        h2 { color: #333; }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .patient-info {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0066cc;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+        tr:hover { background-color: #f9f9f9; }
+        .vide {
+            color: #888;
+            font-style: italic;
+            margin-top: 20px;
+        }
+        .erreur {
+            color: red;
+            padding: 10px;
+            background: #fff0f0;
+            border-radius: 4px;
+            border: 1px solid #ffcccc;
+            margin-bottom: 20px;
+        }
+        .succes {
+            color: green;
+            padding: 10px;
+            background: #f0fff0;
+            border-radius: 4px;
+            border: 1px solid #ccffcc;
+            margin-bottom: 20px;
+        }
+        .compteur {
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .actions a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .actions a:hover { text-decoration: underline; }
+        .btn-upload {
+            background-color: #0066cc;
+            color: white !important;
+            padding: 8px 15px;
+            border-radius: 4px;
+            text-decoration: none !important;
+            display: inline-block;
+        }
+        .btn-upload:hover { background-color: #0052a3; }
+        .btn-pdf {
+            background-color: #cc0000;
+            color: white !important;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-decoration: none !important;
+            display: inline-block;
+            font-size: 13px;
+        }
+        .btn-pdf:hover { background-color: #aa0000; }
+        .inline {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .inline select {
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .btn-small {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            background-color: #0066cc;
+            color: white;
+        }
+        .btn-small:hover { background-color: #0052a3; }
+    </style>
+</head>
+<body>
+
+    <!-- Header commun -->
+    <div th:replace="~{fragments :: header}"></div>
+
+    <div class="content">
+
+        <h2>Documents patient</h2>
+
+        <div class="container">
+
+            <!-- Infos patient -->
+            <div class="patient-info" th:if="${patient != null}">
+                <strong>Patient : </strong>
+                <span th:text="${patient.nomNaissance}"></span>
+                <span th:text="${patient.prenom}"></span>
+                — IPP : <span th:text="${patient.ipp}"></span>
+            </div>
+
+            <!-- Messages -->
+            <div class="erreur" th:if="${erreur}">
+                <p th:text="${erreur}"></p>
+            </div>
+            <div class="succes" th:if="${succes}">
+                <p th:text="${succes}"></p>
+            </div>
+
+            <!-- Compteur -->
+            <p class="compteur"
+               th:if="${documents != null and !#lists.isEmpty(documents)}">
+                <strong th:text="${#lists.size(documents)}"></strong> document(s) trouvé(s).
+            </p>
+
+            <!-- Pas de documents -->
+            <p class="vide"
+               th:if="${documents == null or #lists.isEmpty(documents)}">
+                Aucun document pour ce patient.
+            </p>
+
+            <!-- Tableau -->
+            <table th:if="${documents != null and !#lists.isEmpty(documents)}">
+                <thead>
+                    <tr>
+                        <th>Nom du document</th>
+                        <th>Date</th>
+                        <th>Venue liée</th>
+                        <th>Auteur</th>
+                        <th>Médecin responsable</th>
+                        <th>Ouvrir</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="document : ${documents}">
+
+                        <!-- Nom -->
+                        <td th:text="${document.nom}"></td>
+
+                        <!-- Date -->
+                        <td th:text="${#temporals.format(document.date, 'dd/MM/yyyy HH:mm')}"></td>
+
+                        <!-- Venue -->
+                        <td th:text="${document.venue != null ? document.venue.iep : 'Non lié'}"></td>
+
+                        <!-- Auteur — non modifiable -->
+                        <td th:text="${document.auteur != null ?
+                            document.auteur.nom + ' ' + document.auteur.prenom : '-'}">
+                        </td>
+
+                        <!-- Responsable — modifiable -->
+                        <td>
+                            <form th:action="@{/documents/{id}/responsable(id=${document.id})}"
+                                  method="post" class="inline">
+                                <input type="hidden" name="ipp" th:value="${ipp}" />
+                                <select name="responsableId">
+                                    <option th:each="medecin : ${medecins}"
+                                            th:value="${medecin.id}"
+                                            th:text="${medecin.nom + ' ' + medecin.prenom}"
+                                            th:selected="${document.responsable != null
+                                                and document.responsable.id == medecin.id}">
+                                    </option>
+                                </select>
+                                <button type="submit" class="btn-small">✏️</button>
+                            </form>
+                        </td>
+
+                        <!-- Ouvrir -->
+                        <td>
+                            <a class="btn-pdf"
+                               th:href="@{/documents/download/{id}(id=${document.id})}"
+                               target="_blank">
+                                📄 Ouvrir
+                            </a>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="actions">
+                <a class="btn-upload"
+                   th:href="@{/documents/upload(ipp=${ipp})}">
+                    + Uploader un document
+                </a>
+                <span>|</span>
+                <a th:href="@{/patients/{ipp}(ipp=${ipp})}">← Fiche patient</a>
+                <span>|</span>
+                <a th:href="@{/patients}">← Liste des patients</a>
+                <span>|</span>
+                <a th:href="@{/}">← Retour au menu</a>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

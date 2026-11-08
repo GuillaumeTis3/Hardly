@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des patients</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        h2 {
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .vide {
+            color: #888;
+            font-style: italic;
+            margin-top: 20px;
+        }
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .actions a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .actions a:hover {
+            text-decoration: underline;
+        }
+        .compteur {
+            color: #555;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header commun -->
+    <div th:replace="~{fragments :: header}"></div>
+
+    <h2>Liste des patients</h2>
+
+    <div class="container">
+
+        <!-- Compteur — remplace "Nous avons reçu X patients" -->
+        <p class="compteur" th:if="${patients != null and !#lists.isEmpty(patients)}">
+            Nous avons reçu <strong th:text="${#lists.size(patients)}"></strong> patient(s).
+        </p>
+
+        <!-- Pas de patients — remplace "Pas de patients reçus." -->
+        <p class="vide" th:if="${patients == null or #lists.isEmpty(patients)}">
+            Pas de patients reçus.
+        </p>
+
+        <!-- Tableau — remplace la boucle for dans afficherPatient() -->
+        <table th:if="${patients != null and !#lists.isEmpty(patients)}">
+            <thead>
+                <tr>
+                    <th>IPP</th>
+                    <th>Nom de naissance</th>
+                    <th>Nom d'usage</th>
+                    <th>Prénom</th>
+                    <th>Sexe</th>
+                    <th>Date de naissance</th>
+                    <th>Venues</th>
+                    <th>Documents</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="patient : ${patients}">
+                    <td>
+                        <a th:href="@{/patients/{ipp}(ipp=${patient.ipp})}"
+                           th:text="${patient.ipp}">
+                        </a>
+                    </td>
+                    <td th:text="${patient?.nomNaissance}"></td>
+                    <td th:text="${patient.nomUsage}"></td>
+                    <td th:text="${patient.prenom}"></td>
+                    <td th:text="${patient.sexe}"></td>
+                    <td th:text="${patient.dateNaissance}"></td>
+                    <td>
+                        <!-- Nombre de venues + loupe cliquable -->
+                        <span th:with="nbVenues=${patient.venues.size()}">
+                            <span th:text="${nbVenues}"></span>
+                            <a th:href="@{/venues/{ipp}(ipp=${patient.ipp})}"
+                               title="Voir les venues de ce patient">🔍</a>
+                        </span>
+                    </td>
+                    <td>  <!-- ← nouveau -->
+                        <span th:with="nbDocuments=${patient.documents.size()}">
+                            <span th:text="${nbDocuments}"></span>
+                            <a th:href="@{/documents/{ipp}(ipp=${patient.ipp})}"
+                               title="Voir les documents de ce patient">📄</a>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="actions">
+            <a th:href="@{/patients/creer}">+ Créer un nouveau patient</a>
+            <span>|</span>
+            <a th:href="@{/}">← Retour au menu</a>
+        </div>
+
+    </div>
+
+</body>
+</html>

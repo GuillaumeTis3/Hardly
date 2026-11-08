@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des venues</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        h2 { color: #333; }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .patient-info {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0066cc;
+        }
+        .recherche {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .recherche input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 200px;
+        }
+        .recherche button {
+            padding: 8px 15px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .recherche button:hover { background-color: #0052a3; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover { background-color: #f9f9f9; }
+        .vide {
+            color: #888;
+            font-style: italic;
+            margin-top: 20px;
+        }
+        .erreur {
+            color: red;
+            padding: 10px;
+            background: #fff0f0;
+            border-radius: 4px;
+            border: 1px solid #ffcccc;
+            margin-bottom: 20px;
+        }
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .actions a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .actions a:hover { text-decoration: underline; }
+        .btn-creer {
+           background-color: #0066cc;
+           color: white !important;
+           padding: 8px 15px;
+           border-radius: 4px;
+           text-decoration: none !important;
+           display: inline-block;
+        }
+        .btn-creer:hover { 
+           background-color: #0052a3;
+           color: white !important;
+        }
+        .compteur {
+            color: #555;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header commun -->
+    <div th:replace="~{fragments :: header}"></div>
+
+    <h2>Liste des venues</h2>
+
+    <div class="container">
+
+        <!-- Infos patient -->
+        <div class="patient-info" th:if="${patient != null}">
+            <strong>Patient : </strong>
+            <span th:text="${patient.nomNaissance}"></span>
+            <span th:text="${patient.prenom}"></span>
+            — IPP : <span th:text="${patient.ipp}"></span>
+        </div>
+
+        <!-- Message d'erreur -->
+        <div class="erreur" th:if="${erreur}">
+            <p th:text="${erreur}"></p>
+        </div>
+
+        <!-- Recherche par IEP -->
+        <form th:action="@{/venues/recherche}" method="get" class="recherche">
+            <input type="text" name="iep" placeholder="Numéro de venue..." />
+            <button type="submit">🔍 Rechercher</button>
+        </form>
+
+        <!-- Compteur -->
+        <p class="compteur" th:if="${venues != null and !#lists.isEmpty(venues)}">
+            <strong th:text="${#lists.size(venues)}"></strong> venue(s) trouvée(s).
+        </p>
+
+        <!-- Pas de venues -->
+        <p class="vide" th:if="${venues == null or #lists.isEmpty(venues)}">
+            Pas de venues trouvées.
+        </p>
+
+        <!-- Tableau des venues -->
+        <table th:if="${venues != null and !#lists.isEmpty(venues)}">
+            <thead>
+                <tr>
+                    <th>Numéro de venue (IEP)</th>
+                    <th>Date de début</th>
+                    <th>Date de fin</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="venue : ${venues}">
+                    <td th:text="${venue.iep}"></td>
+                    <td th:text="${venue.dateDebut}"></td>
+                    <td th:text="${venue.dateFin != null ? venue.dateFin : 'En cours'}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="actions">
+            <!-- Bouton créer venue — pré-rempli avec l'IPP si disponible -->
+            <a class="btn-creer"
+               th:href="${ipp != null and ipp != ''} ? @{/venues/creer(ipp=${ipp})} : @{/venues/creer}">
+                + Nouvelle venue
+            </a>
+            <span>|</span>
+            <a th:href="@{/patients}">← Retour à la liste des patients</a>
+            <span>|</span>
+            <a th:href="@{/}">← Retour au menu</a>
+        </div>
+
+    </div>
+
+</body>
+</html>
